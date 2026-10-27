@@ -1,8 +1,12 @@
+import ast
 import json
 import random
 from pathlib import Path
 
-from seed_examples import SEEDS
+from seed_examples import SEEDS as SEEDS_1
+from seed_examples_2 import SEEDS_2
+
+SEEDS = SEEDS_1 + SEEDS_2
 
 random.seed(42)
 
@@ -32,7 +36,14 @@ def build_record(seed, fn, var):
             {"role": "assistant", "content": json.dumps(answer, indent=2)},
         ],
     }
-
+def check_seeds():
+    for s in SEEDS:
+        for field in ("code", "fixed_code"):
+            try:
+                ast.parse(fill(s[field], "f", "x"))
+            except SyntaxError as e:
+                raise SystemExit(f"Seed '{s['id']}' has invalid {field}: {e}")
+    print(f"All {len(SEEDS)} seeds parse correctly.")
 def main():
     seeds = SEEDS[:]
     random.shuffle(seeds)
